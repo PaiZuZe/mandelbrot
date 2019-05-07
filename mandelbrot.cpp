@@ -32,15 +32,24 @@ std::vector<std::vector<int>> sinlge_mandel(std::complex<float> c0, const float 
         del.real(del.real() + del_x);
         del.imag(0);
     }
+    return res_matrix;
+}
 
-    for (int i = 0; i < h; i += 1) {
-        for (int j = 0; j < w; j += 1) {
-            std::cout << res_matrix[i][j] << " ";
+void create_picture(std::vector<std::vector<int>> matrix, const std::string file_name, const int w, const int  h) {
+    png::image< png::rgb_pixel > image(w, h);
+    for (png::uint_32 y = 0; y < image.get_height(); ++y) {
+        for (png::uint_32 x = 0; x < image.get_width(); ++x) {
+            image[y][x] = png::rgb_pixel(128,0,128);
+        }
+    }
+    for (auto i : matrix) {
+        for (auto j: i) {
+            std::cout << j << " ";
         }
         std::cout << std::endl;
     }
+    image.write(file_name);
 
-    return res_matrix;
 }
 
 int main(int argc, char** argv) {
@@ -56,9 +65,12 @@ int main(int argc, char** argv) {
     /*
     const int num_threads = std::stoi(argv[8]);
     const std::string comp_flag = argv[7];
-    const std::string file_name = argv[9];
     */
-    sinlge_mandel(c0, del_y, del_x, w, h);
+    const std::string file_name = argv[9];
+    std::vector<std::vector<int>> res;
+
+    res = sinlge_mandel(c0, del_y, del_x, w, h);
+    create_picture(res, file_name, w, h);
 
     return 0;
 }

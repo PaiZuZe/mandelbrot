@@ -6,6 +6,7 @@ file: mandelbrot.cpp
 blob:
 	g++ mandelbrot.cpp -O2 -o mbrot
 test:
-	./mbrot 0.0 0.0 -0.2 -0.2 5 5 CPU 4 bob.png
+	./mbrot 0.0 0.0 -0.2 -0.2 200 200 CPU 4 bob.png
 clean:
 	rm mbrot
+	rm bob.png
