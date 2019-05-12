@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra -pedantic -lpthread `libpng-config --ldflags`
+CFLAGS=-Wall -Wextra -pedantic -fopenmp -lpthread `libpng-config --ldflags`
 
 file: mandelbrot.cpp
 	g++ mandelbrot.cpp $(CFLAGS) -g -O2 -o mbrot
