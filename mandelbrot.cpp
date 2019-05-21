@@ -83,8 +83,7 @@ int main(int argc, char** argv) {
         fill_matrix(res, w, h, c0, del_y, del_x, num_threads);
     }
     else if (comp_flag.compare("GPU") == 0) {
-        DIE("Não me enche a porra do saco\n");
-        //prepare(res, c0, del_y, del_x, num_threads);
+        prepare(res, w, h, c0, del_y, del_x, num_threads);
     } 
     else {
         DIE("Aprende a escrever\n");

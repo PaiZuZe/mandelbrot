@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra -pedantic -fopenmp -lcudart -lpthread `libpng-config --ldflags`
+CFLAGS=-Wall -Wextra -pedantic -fopenmp -L/usr/local/cuda/lib64 -lcuda -lcudart -lpthread `libpng-config --ldflags`
 NVCC=nvcc
 CC=g++
 
