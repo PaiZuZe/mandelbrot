@@ -88,5 +88,6 @@ int main(int argc, char** argv) {
     }
     create_picture(res, file_name, w, h);
 
+    delete[] res;
     return 0;
 }

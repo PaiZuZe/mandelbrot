@@ -14,7 +14,7 @@ cpu:
 
 .PHONY: gpu
 gpu:
-	./mbrot -2.0 -2.0 2.9 2.0 1920 1080 GPU 4 gpu.png
+	./mbrot -2.0 -2.0 2.9 2.0 1920 1080 GPU 32 gpu.png
 
 
 .PHONY: clean
