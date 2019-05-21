@@ -6,6 +6,6 @@
 #define INTER_LIMIT 255
 
 
-__host__ void prepare (thrust::device_vector<float> res_matrix, thrust::complex<float> c0, const float del_y, const float del_x, const int threads);
+__host__ void prepare (int *res_matrix, const int w, const int h, thrust::complex<float> c0, const float del_y, const float del_x, const int threads);
 
 #endif 

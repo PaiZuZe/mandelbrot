@@ -29,20 +29,22 @@ __host__ void prepare (int *res_matrix, const int w, const int h, thrust::comple
     int *d_res_matrix; 
     int *d_w; 
     int *d_h;
-    thrust::complex<float> *c_c0; 
+    thrust::complex<float> *d_c0; 
     float *d_del_y; 
     float *d_del_x; 
-    cudaMalloc((void **) &d_res_matrix, sizeof(int)*w*h);
-    cudaMalloc((void **) &d_w, sizeof(int));
-    cudaMalloc((void **) &d_h, sizeof(int));
-    cudaMalloc((void **) &c_c0, sizeof(thrust::complex<float>));
-    cudaMalloc((void **) &d_del_y, sizeof(float));
-    cudaMalloc((void **) &d_del_x, sizeof(float));
+    cudaMallocManaged((void **) &d_res_matrix, sizeof(int)*w*h);
+    cudaMallocManaged((void **) &d_w, sizeof(int));
+    cudaMallocManaged((void **) &d_h, sizeof(int));
+    cudaMallocManaged((void **) &d_c0, sizeof(thrust::complex<float>));
+    cudaMallocManaged((void **) &d_del_y, sizeof(float));
+    cudaMallocManaged((void **) &d_del_x, sizeof(float));
     cudaMemcpy(d_w, &w, sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_h, &h, sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(c_c0, &c0, sizeof(thrust::complex<float>), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_c0, &c0, sizeof(thrust::complex<float>), cudaMemcpyHostToDevice);
     cudaMemcpy(d_del_y, &del_y, sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_del_x, &del_x, sizeof(float), cudaMemcpyHostToDevice);
-    //fill_matrix<<<1, 1>>> (d_res_matrix, d_w, d_h, d_c0, d_del_y, d_del_x);
+    fill_matrix<<<1, 1>>> (d_res_matrix, *d_w, *d_h, *d_c0, *d_del_y, *d_del_x);
+    cudaMemcpy(res_matrix, d_res_matrix, sizeof(int)*w*h, cudaMemcpyDeviceToHost);
+
     return;
 }
