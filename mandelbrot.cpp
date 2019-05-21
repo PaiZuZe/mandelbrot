@@ -40,13 +40,11 @@ int get_inter(std::complex<float> c) {
 
 void fill_matrix(int *res, const int w, const int h, std::complex<float> c0, const float del_y, const float del_x, const int threads){
     std::complex<float> del(0, 0);
-    #pragma omp parallel for num_threads(threads) collapse(2)
-        for (int i = 0; i < h; i += 1) {
-            for (int j = 0; j < w; j += 1) {
-                del.real(del_x * j);
-                del.imag(del_y * i);
-                res[i*w + j] = get_inter(c0 + del);
-            }
+    #pragma omp parallel for num_threads(threads)
+        for (int k = 0; k < h*w; ++k) {
+            del.real(del_x * (k%w));
+            del.imag(del_y * (k/w));
+            res[k] = get_inter(c0 + del);
         }  
     return;
 }

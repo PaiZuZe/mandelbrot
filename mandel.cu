@@ -13,15 +13,13 @@ __device__ int get_inter (thrust::complex<float> c) {
     return i;
 }
 
-__global__ void fill_matrix (int *res_matrix, const int w, const int h, thrust::complex<float> c0, const float del_y, const float del_x) {
+__global__ void fill_matrix (int *res, const int w, const int h, thrust::complex<float> c0, const float del_y, const float del_x) {
     thrust::complex<float> del(0, 0);
-    for (int i = 0; i < h; i += 1) {
-        for (int j = 0; j < w; j += 1) {
-            del.real(del_x * j);
-            del.imag(del_y * i);
-            res_matrix[i*w + j] = get_inter(c0 + del);
-        }
-    }
+    for (int k = 0; k < h*w; ++k) {
+        del.real(del_x * (k%w));
+        del.imag(del_y * (k/w));
+        res[k] = get_inter(c0 + del);
+    }  
     return;
 }
 
