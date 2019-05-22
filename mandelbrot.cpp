@@ -1,7 +1,6 @@
 #include <iostream> //cout, cerr
 #include <complex>
 #include <string> //stof
-#include <vector>
 
 #include"mandel.cuh"
 
@@ -14,17 +13,6 @@
         std::exit (EXIT_FAILURE); \
 }
 
-/* For debugging onlt, remove before delivery
-*/
-void print(std::vector<std::vector<int>> &res_matrix) {
-    for (auto i : res_matrix) {
-        for (auto j : i) {
-            std::cout << j << " ";
-        }
-        std::cout << std::endl;
-    }
-    return;
-}
 
 int get_inter(std::complex<float> c) {
     std::complex<float> z(0.0, 0.0);

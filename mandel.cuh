@@ -1,7 +1,6 @@
 #ifndef MANDEL_H 
 #define MANDEL_H
 
-#include <thrust/device_vector.h>
 #include <thrust/complex.h>
 #define INTER_LIMIT 255
 
