@@ -13,9 +13,9 @@ __device__ int get_inter (thrust::complex<float> c) {
     return i;
 }
 
-__global__ void fill_matrix (int *res, const int w, const int h, thrust::complex<float> c0, const float del_y, const float del_x, const int threads) {
+__global__ void fill_matrix (int *res, const int w, const int h, thrust::complex<float> c0, const float del_y, const float del_x, const int threads, const int blocks, const int offset) {
     thrust::complex<float> del(0, 0);
-    int k = threadIdx.x + blockIdx.x*threads;
+    int k = threadIdx.x + blockIdx.x*threads + blocks*threads*offset;
     if (k >= w*h)
         return;
     del.real(del_x * (k%w));
@@ -32,6 +32,8 @@ __host__ void prepare (int *res_matrix, const int w, const int h, thrust::comple
     float *d_del_y; 
     float *d_del_x; 
     
+    cudaSetDevice(0);
+
     cudaMallocManaged((void **) &d_res_matrix, sizeof(int)*w*h);
     cudaMallocManaged((void **) &d_w, sizeof(int));
     cudaMallocManaged((void **) &d_h, sizeof(int));
@@ -45,9 +47,12 @@ __host__ void prepare (int *res_matrix, const int w, const int h, thrust::comple
     cudaMemcpy(d_del_y, &del_y, sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_del_x, &del_x, sizeof(float), cudaMemcpyHostToDevice);
     
-    int max = (w*h / threads) + 1;
-    max+= max%32;
-    fill_matrix<<<max, threads>>> (d_res_matrix, *d_w, *d_h, *d_c0, *d_del_y, *d_del_x, threads);
+    int block = 1024;
+    int max = ((w*h) / (threads*block)) + 1;
+    for (int i = 0; i < max; ++i) {
+        fill_matrix<<<block, threads>>> (d_res_matrix, *d_w, *d_h, *d_c0, *d_del_y, *d_del_x, threads, block, i);
+        cudaDeviceSynchronize();
+    }
     
     cudaMemcpy(res_matrix, d_res_matrix, sizeof(int)*w*h, cudaMemcpyDeviceToHost);
     

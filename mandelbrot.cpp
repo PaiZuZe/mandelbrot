@@ -41,7 +41,7 @@ void create_picture(int *matrix, const std::string file_name, const int w, const
     png::image< png::rgb_pixel > image(w, h);
     for (png::uint_32 i = 0; i < image.get_height(); ++i) {
         for (png::uint_32 j = 0; j < image.get_width(); ++j) {
-            image[i][j] = png::rgb_pixel(matrix[i*w +j], matrix[i*w +j], matrix[i*w +j]);
+            image[i][j] = png::rgb_pixel(255 - matrix[i*w +j], matrix[i*w +j], 255 -  matrix[i*w +j]);
         }
     }
     image.write(file_name);
