@@ -1,11 +1,13 @@
+#include <iostream>
 #include "mandel.cuh"
+#define INTER_LIMIT 255
 
 __device__ int get_inter (thrust::complex<float> c) {
     int i;
     thrust::complex<float> z(0.0, 0.0);
 
-    for (i = 0; i< INTER_LIMIT; ++i) {
-        if (thrust::norm(z) > 4 ) {
+    for (i = 0; i < INTER_LIMIT; ++i) {
+        if (thrust::abs(z) > 2 ) {
             break;
         }
         z = thrust::pow(z, 2) + c;
@@ -15,7 +17,7 @@ __device__ int get_inter (thrust::complex<float> c) {
 
 __global__ void fill_matrix (int *res, const int w, const int h, thrust::complex<float> c0, const float del_y, const float del_x, const int threads, const int blocks, const int offset) {
     thrust::complex<float> del(0, 0);
-    int k = threadIdx.x + blockIdx.x*threads + blocks*threads*offset;
+    unsigned int k = threadIdx.x + blockIdx.x*threads + blocks*threads*offset;
     if (k >= w*h)
         return;
     del.real(del_x * (k%w));
@@ -34,18 +36,51 @@ __host__ void prepare (int *res_matrix, const int w, const int h, thrust::comple
     
     cudaSetDevice(0);
 
-    cudaMallocManaged((void **) &d_res_matrix, sizeof(int)*w*h);
-    cudaMallocManaged((void **) &d_w, sizeof(int));
-    cudaMallocManaged((void **) &d_h, sizeof(int));
-    cudaMallocManaged((void **) &d_c0, sizeof(thrust::complex<float>));
-    cudaMallocManaged((void **) &d_del_y, sizeof(float));
-    cudaMallocManaged((void **) &d_del_x, sizeof(float));
-    
-    cudaMemcpy(d_w, &w, sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_h, &h, sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_c0, &c0, sizeof(thrust::complex<float>), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_del_y, &del_y, sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_del_x, &del_x, sizeof(float), cudaMemcpyHostToDevice);
+    if (cudaSuccess != cudaMallocManaged((void **) &d_res_matrix, sizeof(int)*w*h)) {
+        std::cerr << "Could not allocate memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMallocManaged((void **) &d_w, sizeof(int))) {
+        std::cerr << "Could not allocate memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMallocManaged((void **) &d_h, sizeof(int))) {
+        std::cerr << "Could not allocate memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMallocManaged((void **) &d_c0, sizeof(thrust::complex<float>)) ) {
+        std::cerr << "Could not allocate memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMallocManaged((void **) &d_del_y, sizeof(float))) {
+        std::cerr << "Could not allocate memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMallocManaged((void **) &d_del_x, sizeof(float))) {
+        std::cerr << "Could not allocate memory";
+        exit(EXIT_FAILURE);
+    }
+
+    if (cudaSuccess != cudaMemcpy(d_w, &w, sizeof(int), cudaMemcpyHostToDevice)) {
+        std::cerr << "Could not copy memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMemcpy(d_h, &h, sizeof(int), cudaMemcpyHostToDevice)) {
+        std::cerr << "Could not copy memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMemcpy(d_c0, &c0, sizeof(thrust::complex<float>), cudaMemcpyHostToDevice)) {
+        std::cerr << "Could not copy memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMemcpy(d_del_y, &del_y, sizeof(float), cudaMemcpyHostToDevice)) {
+        std::cerr << "Could not copy memory";
+        exit(EXIT_FAILURE);
+    }
+    if (cudaSuccess != cudaMemcpy(d_del_x, &del_x, sizeof(float), cudaMemcpyHostToDevice)) {
+        std::cerr << "Could not copy memory";
+        exit(EXIT_FAILURE);
+    }
     
     int block = 1024;
     int max = ((w*h) / (threads*block)) + 1;
@@ -54,13 +89,9 @@ __host__ void prepare (int *res_matrix, const int w, const int h, thrust::comple
         cudaDeviceSynchronize();
     }
     
-    cudaMemcpy(res_matrix, d_res_matrix, sizeof(int)*w*h, cudaMemcpyDeviceToHost);
-    
-    cudaFree(d_res_matrix);
-    cudaFree(d_w);
-    cudaFree(d_h);
-    cudaFree(d_c0);
-    cudaFree(d_del_y);
-    cudaFree(d_del_x);
+    if (cudaSuccess != cudaMemcpy(res_matrix, d_res_matrix, sizeof(int)*w*h, cudaMemcpyDeviceToHost)) {
+        std::cerr << "Could not copy memory";
+        exit(EXIT_FAILURE);
+    }
     return;
 }

@@ -18,7 +18,7 @@ int get_inter(std::complex<float> c) {
     std::complex<float> z(0.0, 0.0);
     int i;
     for (i = 0; i < INTER_LIMIT; i++) {
-        if (std::norm(z) > 4) {
+        if (std::abs(z) > 2) {
             break;
         }
         z = std::pow(z, 2) + c;
@@ -45,7 +45,7 @@ void create_picture(int *matrix, const std::string file_name, const int w, const
         }
     }
     image.write(file_name);
-
+    return;
 }
 
 int main(int argc, char** argv) {
@@ -56,13 +56,12 @@ int main(int argc, char** argv) {
     std::complex<float> c1(std::stof(argv[3]), std::stof(argv[4]));
     const int w = std::stoi(argv[5]);
     const int h = std::stoi(argv[6]);
-    const float del_x = (c1.real() - c0.real()) / (w - 1);
-    const float del_y = (c1.imag() - c0.imag()) / (h - 1);
-    const int num_threads = std::stoi(argv[8]);
     const std::string comp_flag = argv[7];
+    const int num_threads = std::stoi(argv[8]);
     const std::string file_name = argv[9];
     
-
+    const float del_x = (c1.real() - c0.real()) / (w - 1);
+    const float del_y = (c1.imag() - c0.imag()) / (h - 1);
     int *res = new int[w*h];
     
     if (comp_flag.compare("CPU") == 0) {
@@ -72,10 +71,11 @@ int main(int argc, char** argv) {
         prepare(res, w, h, c0, del_y, del_x, num_threads);
     } 
     else {
-        DIE("Aprende a escrever\n");
+        DIE("Neither CPU nor GPU selected.\n");
     }
     create_picture(res, file_name, w, h);
-
+    
     delete[] res;
+
     return 0;
 }
